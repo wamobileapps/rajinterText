@@ -8,6 +8,7 @@ import {
   TextInput,
   SectionList,
 } from "react-native";
+import  { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { color } from "./components/theme";
 import { PaddingBox, VerticalBox } from "./components/AlignComponent";
@@ -19,7 +20,8 @@ export default function App() {
     "Biennale-SemiBold": require("./assets/fonts/Biennale-SemiBold.otf"),
     "Biennale-Medium": require("./assets/fonts/Biennale-Medium.otf"),
   });
-
+  const [number, setnumber] = useState(0);
+  const [search, setsearch] = useState("");
   const DATA = [
     {
       title: "Food",
@@ -38,7 +40,10 @@ export default function App() {
     },
   ];
 
-  const onClickHandle = () => {};
+  const onClickHandle = () => {
+      setnumber(number+1)
+
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={color.white} translucent={false} />
@@ -62,7 +67,7 @@ export default function App() {
             <View>
               <Text style={styles.tt13M}>Number of button clicks</Text>
               <PaddingBox style={5} />
-              <Text style={styles.tt13ML}>2</Text>
+              <Text style={styles.tt13ML}>{number}</Text>
             </View>
           </View>
           <PaddingBox style={20} />
@@ -77,6 +82,8 @@ export default function App() {
               placeholder="Search"
               placeholderTextColor={color.light}
               style={styles.inputStyles}
+              value={search}
+              onChangeText={(text)=>setsearch(text)}
             />
           </View>
           <PaddingBox style={15} />
@@ -89,7 +96,7 @@ export default function App() {
             <View>
               <Text style={styles.tt13M}>Searched text</Text>
               <PaddingBox style={5} />
-              <Text style={styles.tt13ML}>2</Text>
+              <Text style={styles.tt13ML}>{search ? search : "text"}</Text>
             </View>
           </View>
           <PaddingBox style={20} />
