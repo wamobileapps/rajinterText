@@ -7,13 +7,16 @@ import {
   Image,
   TextInput,
   SectionList,
+  TouchableOpacity,
 } from "react-native";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { color } from "./components/theme";
 import { PaddingBox, VerticalBox } from "./components/AlignComponent";
 import Button from "./components/Button";
 import { Styles } from "./components/fonts";
+import { Calendar, CalendarList, Agenda } from "react-native-calendars";
+import moment from "moment";
 
 export default function App() {
   useFonts({
@@ -22,28 +25,122 @@ export default function App() {
   });
   const [number, setnumber] = useState(0);
   const [search, setsearch] = useState("");
+  const [date, setdate] = useState({});
+  const [startdate, setstartdate] = useState({ date: "", day: "" });
+  const [endDate, setendDate] = useState({ date: "", day: "" });
   const DATA = [
     {
       title: "Food",
       data: [
-        {name:"Bananas", type:"Grocery Ape", qty:"2", li:"kg"},
-        {name:"Sugar", type:"Candy shop", qty:"0,5", li:"kg"},
-        {name:"Tuna", type:"Temple of the catch", qty:"155", li:"kg"},
+        { name: "Bananas", type: "Grocery Ape", qty: "2", li: "kg" },
+        { name: "Sugar", type: "Candy shop", qty: "0,5", li: "kg" },
+        { name: "Tuna", type: "Temple of the catch", qty: "155", li: "kg" },
       ],
     },
     {
       title: "Technology",
-      data: [
-        {name:"Polystation", type:"Stairsmart", qty:"300", li:"Qt"},
-       
-      ],
+      data: [{ name: "Polystation", type: "Stairsmart", qty: "300", li: "Qt" }],
     },
   ];
 
-  const onClickHandle = () => {
-      setnumber(number+1)
+  function getCurrentWeek(date) {
+    var curr = new Date(); // get current date
+    var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+    var last = first + 6; // last day is the first day + 6
+    var days = [];
+    for (var i = 0; i <= 6; i++) {
+      i == 0 ? setstartdate({ day: first, date: curr }) : null;
+      i == 6 ? setendDate({ day: first, date: curr }) : null;
+      //2012-05-15
+      let date = new Date(curr.setDate(first)).toUTCString();
+      let dat = moment(date).format("YYYY-MM-DD");
+      days.push(dat);
+      var first = first + 1;
+    }
+    let objs = {};
+    days.map((i, index) => {
+      objs[i] = {
+        color: "#3975FF",
+        endingDay: index == 6 ? true : false,
+        startingDay: index == 0 ? true : false,
+        textColor: "white",
+      };
+    });
+    console.log(objs);
+    setdate(objs);
+  }
+  //  let value = {
+  //   dat:dat,
+  //   startingDay: i==0? true : false,
+  //   color: '#50cebb',
+  //   textColor: 'white',
+  //   startingDay: i==0? true : false,
+  //   endingDay: i == 6?true:false,
+  // }
+  useEffect(() => {
+    getCurrentWeek();
+  }, []);
 
+  const onClickHandle = () => {
+    setnumber(number + 1);
   };
+
+  const onChnageWeek = (value) => {
+    if (value == "pre") {
+      var days = [];
+      let first = startdate.day - 7;
+      let curr = new Date(startdate.date);
+
+      console.log(first);
+      for (var i = 0; i <= 6; i++) {
+        //2012-05-15
+        i == 0 ? setstartdate({ day: first, date: curr }) : null;
+        i == 6 ? setendDate({ day: first, date: curr }) : null;
+        let date = new Date(curr.setDate(first)).toUTCString();
+        let dat = moment(date).format("YYYY-MM-DD");
+        days.push(dat);
+        first = first + 1;
+      }
+      let objs = {};
+      days.map((i, index) => {
+        objs[i] = {
+          color: "#3975FF",
+          endingDay: index == 6 ? true : false,
+          startingDay: index == 0 ? true : false,
+          textColor: "white",
+        };
+      });
+      console.log(objs);
+      setdate(objs);
+    } else {
+      var days = [];
+      let first = endDate.day +1;
+      let curr = new Date(endDate.date);
+
+      console.log(first);
+      for (var i = 0; i <= 6; i++) {
+        //2012-05-15
+        i == 0 ? setstartdate({ day: first, date: curr }) : null;
+        i == 6 ? setendDate({ day: first, date: curr }) : null;
+        let date = new Date(curr.setDate(first)).toUTCString();
+        let dat = moment(date).format("YYYY-MM-DD");
+        days.push(dat);
+        first = first + 1;
+      }
+      let objs = {};
+      days.map((i, index) => {
+        objs[i] = {
+          color: "#3975FF",
+          endingDay: index == 6 ? true : false,
+          startingDay: index == 0 ? true : false,
+          textColor: "white",
+        };
+      });
+      console.log(objs);
+      setdate(objs);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={color.white} translucent={false} />
@@ -83,7 +180,7 @@ export default function App() {
               placeholderTextColor={color.light}
               style={styles.inputStyles}
               value={search}
-              onChangeText={(text)=>setsearch(text)}
+              onChangeText={(text) => setsearch(text)}
             />
           </View>
           <PaddingBox style={15} />
@@ -131,6 +228,29 @@ export default function App() {
               />
             </View>
           </View>
+          <PaddingBox style={20} />
+          <Text style={styles.tt16SB}>Calendar test</Text>
+          <PaddingBox style={10} />
+          <View style={styles.conatinerCel}>
+            <Calendar markingType={"period"} markedDates={date} />
+          </View>
+          <PaddingBox style={20} />
+
+          <View style={styles.box}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => onChnageWeek("pre")}
+            >
+              <Text style={styles.tt18SB}>Previous week</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => onChnageWeek("next")}
+            >
+              <Text style={styles.tt18SB}>Next week</Text>
+            </TouchableOpacity>
+          </View>
+          <PaddingBox style={10} />
 
           <PaddingBox style={20} />
           <Text style={styles.tt16SB}>List test</Text>
@@ -153,12 +273,19 @@ export default function App() {
                     <PaddingBox style={5} />
                     <Text style={styles.tt13ML}>{item.type}</Text>
                   </View>
-                  <Text style={styles.tt13B}>{item.qty}<Text style={{color:color.light}}>{` `}{item.li}</Text></Text>
-                 
+                  <Text style={styles.tt13B}>
+                    {item.qty}
+                    <Text style={{ color: color.light }}>
+                      {` `}
+                      {item.li}
+                    </Text>
+                  </Text>
                 </View>
               )}
               renderSectionHeader={({ section: { title } }) => (
-                <Text style={styles.tt13M}>{title}</Text>
+                <Text style={[styles.tt13M, { paddingHorizontal: 15 }]}>
+                  {title}
+                </Text>
               )}
             />
           </View>
@@ -170,11 +297,20 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  innerText:{
-    flexDirection:"row",
-    justifyContent:"space-between",
+  innerText: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     // backgroundColor:color.black,
     // width:"70%"
+  },
+  button: {
+    width: "45%",
+    height: 45,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+
+    backgroundColor: color.primary,
   },
   tt16SB: {
     color: color.textgrey,
@@ -184,9 +320,16 @@ const styles = StyleSheet.create({
   listContaienr: {
     width: "100%",
     elevation: 1,
-    padding: 15,
+    paddingVertical: 15,
     backgroundColor: color.white,
     borderRadius: 8,
+  },
+  conatinerCel: {
+    paddingHorizontal: 10,
+    elevation: 1,
+    backgroundColor: color.white,
+    borderRadius: 8,
+    paddingBottom: 10,
   },
   notStyles: {
     paddingHorizontal: 20,
@@ -217,12 +360,16 @@ const styles = StyleSheet.create({
   inputStyles: {
     paddingHorizontal: 10,
   },
+  box: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   tt13SB: {
     color: color.light,
     fontFamily: "Biennale-SemiBold",
     fontSize: 13,
   },
- 
+
   searchContainer: {
     width: "100%",
     height: 50,
@@ -246,9 +393,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: color.textgrey,
     fontFamily: "Biennale-SemiBold",
-    position:"absolute",
-    right:0,
-    marginTop:15
+    position: "absolute",
+    right: 15,
+    marginTop: 15,
   },
   tt13ML: {
     fontSize: 13,
@@ -273,10 +420,9 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 8,
     paddingVertical: 15,
-    paddingHorizontal: 0,
+    paddingHorizontal: 15,
     backgroundColor: color.white,
     flexDirection: "row",
-    // borderBottomWidth:1
   },
   tt18SB: {
     color: color.white,
